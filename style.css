@@ -66,3 +66,6 @@ ul#ideas{list-style:none;padding:0}
 #ideas button{padding:.2rem .5rem;background:var(--soft);color:var(--ink)}
 @media(max-width:600px){.card{grid-template-columns:1fr}.price{border-left:0;border-top:3px dashed var(--ink)}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.controls{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
+.controls select{padding:.3rem}
+.split-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;margin:.6rem 0 .2rem;background:#d6dbe1}

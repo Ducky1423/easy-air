@@ -50,6 +50,14 @@
     <section id="results" hidden>
       <h2>Your options</h2>
       <p class="note">Tap a card to see its route. Tap a day to compare prices. Fares are estimates based on distance until we connect a live flight feed.</p>
+      <div class="controls">
+        <label class="r">Sort by
+          <select id="sort"><option value="total">Lowest price</option><option value="flight">Cheapest flight</option><option value="stay">Cheapest stay</option></select>
+        </label>
+        <label class="r"><input type="checkbox" id="onlyBudget"> Only within budget</label>
+        <button type="button" id="share">Copy link to this search</button>
+      </div>
+      <p id="empty" class="note"></p>
       <div id="cards"></div>
     </section>
     <section id="split" class="panel" hidden>

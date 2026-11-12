@@ -15,7 +15,14 @@ const DESTS = [
  {n:"Denver, CO",la:39.74,lo:-104.99,v:["adventure"],h:40,a:180,t:190,act:["Red Rocks","Rocky Mountain hikes","Brewery crawl"],r:["Denver to Rocky Mountain NP",75,"Boulder, Estes Park, Trail Ridge Road"]},
  {n:"Asheville, NC",la:35.60,lo:-82.55,v:["adventure","relax"],h:34,a:150,t:170,act:["Waterfall hikes","River tubing","Mountain overlooks"],r:["Blue Ridge Parkway",90,"Craggy Gardens, Mt Mitchell, Linville Falls"]},
  {n:"Honolulu, HI",la:21.31,lo:-157.86,v:["relax","adventure"],h:48,a:250,t:260,act:["Diamond Head hike","Surf Waikiki","Hanauma Bay snorkel"],r:["North Shore loop",110,"Pali Lookout, Kailua, Waimea Bay"]},
- {n:"San Diego, CA",la:32.72,lo:-117.16,v:["relax"],h:42,a:210,t:230,act:["La Jolla cove","Balboa Park","Tacos in Barrio Logan"],r:["San Diego to Joshua Tree",150,"Julian, Anza-Borrego, Palm Springs"]}
+ {n:"San Diego, CA",la:32.72,lo:-117.16,v:["relax"],h:42,a:210,t:230,act:["La Jolla cove","Balboa Park","Tacos in Barrio Logan"],r:["San Diego to Joshua Tree",150,"Julian, Anza-Borrego, Palm Springs"]},
+ {n:"Lisbon, Portugal",la:38.72,lo:-9.14,v:["relax","party"],h:30,a:140,t:150,act:["Tram 28 and Alfama","Sintra day trip","Pastéis in Belém"],r:["Lisbon to Cascais",40,"Sintra, Cabo da Roca, Cascais"]},
+ {n:"Barcelona, Spain",la:41.39,lo:2.17,v:["party","relax"],h:35,a:180,t:190,act:["Sagrada Família","Beach clubs","Tapas crawl"],r:["Barcelona to Costa Brava",90,"Girona, Tossa de Mar, Cadaqués"]},
+ {n:"Reykjavík, Iceland",la:64.15,lo:-21.94,v:["adventure"],h:48,a:260,t:250,act:["Golden Circle","Blue Lagoon","Glacier hike"],r:["Golden Circle",190,"Þingvellir, Geysir, Gullfoss"]},
+ {n:"Salt Lake City, UT",la:40.76,lo:-111.89,v:["adventure"],h:35,a:160,t:170,act:["Wasatch hikes or skiing","Antelope Island","Park City"],r:["Salt Lake City to Arches",235,"Moab, Arches, Canyonlands"]},
+ {n:"Austin, TX",la:30.27,lo:-97.74,v:["party"],h:36,a:170,t:190,act:["6th Street","Barton Springs","BBQ crawl"],r:["Austin Hill Country",90,"Fredericksburg, Wimberley, Luckenbach"]},
+ {n:"Las Vegas, NV",la:36.17,lo:-115.14,v:["party"],h:30,a:150,t:140,act:["The Strip","Fremont Street","Red Rock Canyon"],r:["Las Vegas to Zion",160,"Valley of Fire, St. George, Zion"]},
+ {n:"Bangkok, Thailand",la:13.76,lo:100.50,v:["party","adventure"],h:12,a:70,t:60,act:["Street food tours","Grand Palace","Chatuchak Market"],r:["Bangkok to Ayutthaya",50,"Ayutthaya, Bang Pa-In, Floating markets"]}
 ];
 
 const money = x => "$" + Math.round(x);
@@ -55,7 +62,7 @@ function search(id){
 search("origin"); search("dest");
 
 // ---- planning ----
-let opts = null, results = [], sel = 0, first = true;
+let opts = null, allResults = [], results = [], sel = 0, first = true;
 function plan(D, o){
   const oAps = near(o.org, 160, 4), dAp = near(D, 1e9, 1)[0], days = [];
   for (let i = 0; i < 7; i++){                         // try 7 departure days x every nearby airport
@@ -95,12 +102,20 @@ $("form").addEventListener("submit", async e => {
   btn.textContent = "Find my trip";
   if (!org) { $("err").textContent = "We couldn't find your starting place. Check your internet and try a city name."; return; }
   if (known && !dst) { $("err").textContent = "We couldn't find that destination. Try a city name."; return; }
-  opts = {org, start: new Date($("start").value + "T12:00"), nights: +$("nights").value, people: +$("people").textContent, budget: +$("budget").value, car: $("car").checked};
+  opts = {org, start: new Date($("start").value + "T12:00"), nights: +$("nights").value, people: +$("people").textContent, budget: +$("budget").value, car: $("car").checked, dst, known, vibe: $("form").vibe.value};
   const list = known ? [{n: dst.name, la: dst.la, lo: dst.lo, custom: true}] : DESTS.filter(d => d.v.includes($("form").vibe.value));
-  results = list.map(D => plan(D, opts)).sort((a, b) => total(a) - total(b));
-  sel = 0; first = true; $("results").hidden = false; $("split").hidden = true;
-  draw(); $("results").scrollIntoView({behavior: "smooth"});
+  allResults = list.map(D => plan(D, opts));
+  first = true; $("results").hidden = false; $("split").hidden = true;
+  applyView(); $("results").scrollIntoView({behavior: "smooth"});
 });
+
+// ---- sorting and filtering ----
+function applyView(){
+  const by = {total, flight: r => r.days[r.pick].f, stay: r => r.lodgeTotal}[$("sort").value];
+  results = allResults.filter(r => !$("onlyBudget").checked || total(r) <= opts.budget).sort((a, b) => by(a) - by(b));
+  sel = 0; draw();
+}
+$("sort").onchange = $("onlyBudget").onchange = applyView;
 
 // ---- drawing ----
 function card(r, i){
@@ -109,11 +124,14 @@ function card(r, i){
   const f = (d, o) => d.toLocaleDateString("en-US", o);
   const bars = r.days.map((d, j) => `<button type="button" class="bar ${j === r.pick ? "best" : ""}" data-d="${j}" aria-label="Depart ${f(d.d, {weekday:"long"})}, ${money(d.tot)}"><i style="height:${Math.round(d.tot/max*54) + 6}px"></i>${f(d.d, {weekday:"short"})}<br>${money(d.tot)}</button>`).join("");
   const road = dist(opts.org, D)*1.2, gas = road*.28/Math.min(opts.people, 4);
+  const parts = [["Travel", x.tot + r.xfer, "var(--accent)"], ["Stay", r.lodgeTotal, "#f4a261"], ["Car", r.carTotal, "#8d99ae"], ["Food and fun", r.fun, "#c9ada7"]].filter(p => p[1] > 0);
   return `<article class="card ${i === sel ? "sel" : ""}" data-i="${i}"><div class="main">
     <h3>${esc(D.n)}</h3>
     <p>Fly from <b>${x.ap.c}</b> to <b>${r.dAp.c}</b> on <b>${f(x.d, {weekday:"long", month:"short", day:"numeric"})}</b> for ${money(x.f)}${x.ap.d > 5 ? `, plus a ${Math.round(x.ap.d)}-mile drive to the airport` : ""}${r.dAp.d > 40 ? `. Then ${Math.round(r.dAp.d)} miles by road to ${esc(D.n.split(",")[0])}` : ""}.</p>
     <div class="bars">${bars}</div>
     <p class="note">${x.tot === cheapest ? "This is the cheapest day." : `Cheapest day saves ${money(x.tot - cheapest)}.`} Tap a day to compare.</p>
+    <div class="split-bar" role="img" aria-label="Cost breakdown">${parts.map(p => `<span style="flex:${p[1]};background:${p[2]}"></span>`).join("")}</div>
+    <p class="note">${parts.map(p => p[0] + " " + money(p[1])).join(", ")}</p>
     <p>Stay: <b>${r.lodge[0]}</b>, about ${money(r.lodge[1])} per person per night for ${opts.people} ${opts.people === 1 ? "traveler" : "travelers"}${D.custom ? " (typical price, not specific to this place)" : ""}.</p>
     <p>Do: ${D.act ? D.act.join(", ") : `<a href="${gm("things to do in " + D.n)}" target="_blank" rel="noopener">see things to do</a>`}.</p>
     ${opts.car ? `<p>Road trip: ${D.r ? `<b>${D.r[0]}</b>, ${D.r[1]} miles. Stops: ${D.r[2]}.` : `<a href="${gm("scenic drives near " + D.n)}" target="_blank" rel="noopener">find scenic drives</a>.`}</p>` : ""}
@@ -122,6 +140,7 @@ function card(r, i){
     <div class="price"><b data-v="${Math.round(tot)}">${money(tot)}</b>per person<span class="${over ? "bad" : "ok"}">${over ? money(tot - opts.budget) + " over budget" : "Within budget"}</span></div></article>`;
 }
 function draw(){
+  $("empty").textContent = results.length ? "" : "Nothing fits your budget. Try a higher budget, fewer nights, or different dates.";
   $("cards").innerHTML = results.map(card).join("");
   drawMap(results[sel]);
   if (first) {                                         // count the prices up once, when results first appear
@@ -197,3 +216,24 @@ function drawIdeas(){
 $("ideaForm").addEventListener("submit", e => { e.preventDefault(); ideas.push({t: $("idea").value, s: 0}); $("idea").value = ""; drawIdeas(); });
 $("ideas").addEventListener("click", e => { if (e.target.dataset.d) { ideas[e.target.dataset.i].s += +e.target.dataset.d; drawIdeas(); } });
 drawIdeas();
+
+// ---- share a search by link ----
+$("share").onclick = async () => {
+  const q = new URLSearchParams({o: [opts.org.name, opts.org.la, opts.org.lo].join("|"), m: opts.known ? "k" : "v", v: opts.vibe, s: $("start").value, n: opts.nights, p: opts.people, b: opts.budget, c: opts.car ? 1 : 0});
+  if (opts.dst) q.set("d", [opts.dst.name, opts.dst.la, opts.dst.lo].join("|"));
+  const url = location.href.split("#")[0] + "#" + q;
+  try { await navigator.clipboard.writeText(url); $("share").textContent = "Link copied!"; } catch (e) { prompt("Copy this link", url); }
+  setTimeout(() => $("share").textContent = "Copy link to this search", 2000);
+};
+(function restore(){                                   // a shared link refills the form and runs the search
+  const q = new URLSearchParams(location.hash.slice(1));
+  if (!q.get("o")) return;
+  const place = s => { const [name, la, lo] = s.split("|"); return {name, la: +la, lo: +lo}; };
+  const setRadio = (n, v) => { const el = document.querySelector(`input[name="${n}"][value="${v}"]`); if (el) { el.checked = true; el.dispatchEvent(new Event("change")); } };
+  picked.origin = place(q.get("o")); $("origin").value = picked.origin.name;
+  if (q.get("d")) { picked.dest = place(q.get("d")); $("dest").value = picked.dest.name; }
+  setRadio("vibe", q.get("v") || "relax"); setRadio("mode", q.get("m") === "v" ? "vibe" : "known");
+  $("start").value = q.get("s"); $("nights").value = q.get("n"); $("people").textContent = q.get("p");
+  $("budget").value = q.get("b"); $("budgetOut").textContent = "$" + q.get("b"); $("car").checked = q.get("c") === "1";
+  $("form").requestSubmit();
+})();
