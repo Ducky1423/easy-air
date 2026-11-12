@@ -7,58 +7,60 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Easy Air</h1>
-    <p>Pick the vibe, find the cheapest way there, and settle who pays what with your friends.</p>
-  </header>
-  <main>
-    <section>
-      <h2>Plan your trip</h2>
-      <form id="form">
+  <div class="hero">
+    <div class="wrap">
+      <h1>Easy Air</h1>
+      <p>Pick a vibe or a place. We find the cheapest way to get there and split the bill.</p>
+      <svg id="map" viewBox="0 0 800 320" role="img" aria-label="Map of your route"></svg>
+    </div>
+  </div>
+  <main class="wrap">
+    <section class="panel">
+      <form id="form" autocomplete="off">
         <label>Where are you starting from?
-          <select id="origin">
-            <option value="columbus">Columbus, OH</option>
-            <option value="chicago">Chicago, IL</option>
-            <option value="newyork">New York, NY</option>
-          </select>
+          <span class="sw"><input id="origin" placeholder="Any city, e.g. Columbus" required><ul class="sug" id="originSug"></ul></span>
         </label>
-        <fieldset>
-          <legend>How do you want to plan?</legend>
-          <label class="r"><input type="radio" name="mode" value="known" checked> I know where I'm going</label>
-          <label class="r"><input type="radio" name="mode" value="vibe"> Surprise me with a vibe</label>
-        </fieldset>
-        <label id="destBox">Destination <select id="dest"></select></label>
-        <fieldset id="vibeBox" hidden>
-          <legend>What kind of trip?</legend>
-          <label class="r"><input type="radio" name="vibe" value="relax" checked> Relax</label>
-          <label class="r"><input type="radio" name="vibe" value="adventure"> Adventure</label>
-          <label class="r"><input type="radio" name="vibe" value="party"> Party</label>
-        </fieldset>
-        <label>Earliest departure <input type="date" id="start" required></label>
-        <label>Nights <input type="number" id="nights" value="4" min="1" max="14"></label>
-        <label>Travelers <input type="number" id="people" value="4" min="1" max="12"></label>
-        <label>Budget per person ($) <input type="number" id="budget" value="900" min="100"></label>
+        <div class="tabs">
+          <label><input type="radio" name="mode" value="known" checked><span>I know where I'm going</span></label>
+          <label><input type="radio" name="mode" value="vibe"><span>Surprise me with a vibe</span></label>
+        </div>
+        <label id="destBox">Where to?
+          <span class="sw"><input id="dest" placeholder="Any place, e.g. Tokyo or Nashville"><ul class="sug" id="destSug"></ul></span>
+        </label>
+        <div id="vibeBox" class="tiles" hidden>
+          <label class="tile"><input type="radio" name="vibe" value="relax" checked><span><b>🌴</b>Relax</span></label>
+          <label class="tile"><input type="radio" name="vibe" value="adventure"><span><b>🏔️</b>Adventure</span></label>
+          <label class="tile"><input type="radio" name="vibe" value="party"><span><b>🎉</b>Party</span></label>
+        </div>
+        <div class="row">
+          <label>Earliest departure <input type="date" id="start" required></label>
+          <label>Nights <input type="number" id="nights" value="4" min="1" max="21"></label>
+          <label>Travelers
+            <span class="step"><button type="button" id="minus" aria-label="Fewer travelers">−</button><output id="people">4</output><button type="button" id="plus" aria-label="More travelers">+</button></span>
+          </label>
+        </div>
+        <label>Budget per person: <output id="budgetOut">$900</output>
+          <input type="range" id="budget" min="200" max="4000" step="50" value="900">
+        </label>
         <label class="r"><input type="checkbox" id="car"> I'll rent a car</label>
-        <button>Find my trip</button>
+        <p id="err" class="bad" role="alert"></p>
+        <button class="go">Find my trip</button>
       </form>
     </section>
     <section id="results" hidden>
       <h2>Your options</h2>
-      <p class="note">Prices are sample numbers for now. We check seven departure days across every airport near you.</p>
+      <p class="note">Tap a card to see its route. Tap a day to compare prices. Fares are estimates based on distance until we connect a live flight feed.</p>
       <div id="cards"></div>
     </section>
-    <section id="split" hidden>
+    <section id="split" class="panel" hidden>
       <h2>Split the cost</h2>
       <div id="splitOut"></div>
     </section>
-    <section>
+    <section class="panel">
       <h2>Group ideas</h2>
-      <form id="ideaForm">
-        <input id="idea" placeholder="Suggest a trip idea" required>
-        <button>Add idea</button>
-      </form>
+      <form id="ideaForm"><input id="idea" placeholder="Suggest a trip idea" required><button>Add idea</button></form>
       <ul id="ideas"></ul>
-      <p class="note">Ideas are saved in this browser only. Sharing them with friends needs a backend, which comes later.</p>
+      <p class="note">Ideas are saved in this browser only. Sharing with friends needs a backend, which comes later.</p>
     </section>
   </main>
   <script src="script.js"></script>
