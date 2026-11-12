@@ -1,27 +1,66 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Easy Air</title>
-  </head>
-  <body>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Easy Air</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
     <h1>Easy Air</h1>
-
-    <form>
-  <p>
-    <label for="origin">Where are you starting from?</label>
-    <input type="text" id="origin">
-  </p>
-  <p>
-    <label for="destination">Where do you want to go?</label>
-    <input type="text" id="destination">
-  </p>
-  <fieldset>
-  <legend>What kind of trip do you want?</legend>
-  <label><input type="radio" name="vibe" value="relax"> Relax</label>
-  <label><input type="radio" name="vibe" value="adventure"> Adventure</label>
-  <label><input type="radio" name="vibe" value="party"> Party</label>
-</fieldset>
-  
-</form>
-  </body>
+    <p>Pick the vibe, find the cheapest way there, and settle who pays what with your friends.</p>
+  </header>
+  <main>
+    <section>
+      <h2>Plan your trip</h2>
+      <form id="form">
+        <label>Where are you starting from?
+          <select id="origin">
+            <option value="columbus">Columbus, OH</option>
+            <option value="chicago">Chicago, IL</option>
+            <option value="newyork">New York, NY</option>
+          </select>
+        </label>
+        <fieldset>
+          <legend>How do you want to plan?</legend>
+          <label class="r"><input type="radio" name="mode" value="known" checked> I know where I'm going</label>
+          <label class="r"><input type="radio" name="mode" value="vibe"> Surprise me with a vibe</label>
+        </fieldset>
+        <label id="destBox">Destination <select id="dest"></select></label>
+        <fieldset id="vibeBox" hidden>
+          <legend>What kind of trip?</legend>
+          <label class="r"><input type="radio" name="vibe" value="relax" checked> Relax</label>
+          <label class="r"><input type="radio" name="vibe" value="adventure"> Adventure</label>
+          <label class="r"><input type="radio" name="vibe" value="party"> Party</label>
+        </fieldset>
+        <label>Earliest departure <input type="date" id="start" required></label>
+        <label>Nights <input type="number" id="nights" value="4" min="1" max="14"></label>
+        <label>Travelers <input type="number" id="people" value="4" min="1" max="12"></label>
+        <label>Budget per person ($) <input type="number" id="budget" value="900" min="100"></label>
+        <label class="r"><input type="checkbox" id="car"> I'll rent a car</label>
+        <button>Find my trip</button>
+      </form>
+    </section>
+    <section id="results" hidden>
+      <h2>Your options</h2>
+      <p class="note">Prices are sample numbers for now. We check seven departure days across every airport near you.</p>
+      <div id="cards"></div>
+    </section>
+    <section id="split" hidden>
+      <h2>Split the cost</h2>
+      <div id="splitOut"></div>
+    </section>
+    <section>
+      <h2>Group ideas</h2>
+      <form id="ideaForm">
+        <input id="idea" placeholder="Suggest a trip idea" required>
+        <button>Add idea</button>
+      </form>
+      <ul id="ideas"></ul>
+      <p class="note">Ideas are saved in this browser only. Sharing them with friends needs a backend, which comes later.</p>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
 </html>
