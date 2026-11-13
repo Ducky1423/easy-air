@@ -184,7 +184,6 @@ $("cards").addEventListener("click", e => {
   if (bar) results[i].pick = +bar.dataset.d;
   draw();
   if (sp) openSplit(results[i]);
-  else window.scrollTo({top: 0, behavior: "smooth"});
 });
 
 // ---- cost split ----

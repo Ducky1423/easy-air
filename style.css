@@ -8,7 +8,8 @@ body{margin:0;background:#f1f0ea;color:var(--ink);font:16px/1.5 "Trebuchet MS",V
 .hero{background:linear-gradient(160deg,var(--h1),var(--h2));color:#fff;padding:1.5rem 0 1.2rem;margin-bottom:1.2rem}
 h1{font:700 2.8rem/1 "Century Gothic",Futura,sans-serif;letter-spacing:-.03em;margin:0 0 .3rem}
 h2{margin:0 0 .6rem}
-#map{width:100%;height:auto;background:rgba(255,255,255,.08);border-radius:12px;margin-top:.8rem;display:block}
+#mapWrap{position:sticky;top:0;z-index:4;background:linear-gradient(160deg,var(--h1),var(--h2));border-radius:12px;padding:.4rem;margin-bottom:1rem;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+#map{width:100%;height:auto;max-height:38vh;display:block}
 .panel{background:var(--paper);border-radius:12px;padding:1.2rem;margin-bottom:1.2rem}
 form{display:grid;gap:.9rem}
 label{display:grid;gap:.25rem;font-weight:700}
